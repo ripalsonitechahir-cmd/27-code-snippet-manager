@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+  namespace: code-snippet-manager
+  labels:
+    app: code-snippet-manager
+spec:
+  containers:
+    - name: app
+      image: code-snippet-manager:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 4000
+      env:
+        - name: PORT
+          value: "4000"
+        - name: DATABASE_URL
+          value: file:/data/app.db
+      resources:
+        requests: { cpu: 100m, memory: 128Mi }
+        limits: { cpu: 500m, memory: 512Mi }
+      readinessProbe:
+        httpGet: { path: /health, port: 4000 }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+      livenessProbe:
+        httpGet: { path: /health, port: 4000 }
+        initialDelaySeconds: 20
+        periodSeconds: 15
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      emptyDir: {}   # temporary storage; replaced by a PVC in the next phase

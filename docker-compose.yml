@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    image: code-snippet-manager:latest
+    container_name: code-snippet-manager
+    ports:
+      - "${APP_PORT:-4000}:4000"
+    environment:
+      PORT: 4000
+      DATABASE_URL: file:/data/app.db
+      SEED_DB: ${SEED_DB:-true}
+    volumes:
+      - snippet-data:/data
+    restart: unless-stopped
+
+volumes:
+  snippet-data:

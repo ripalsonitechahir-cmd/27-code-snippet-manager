@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Snippet {
+  id         Int          @id @default(autoincrement())
+  title      String
+  language   String
+  code       String
+  isFavorite Boolean      @default(false) @map("is_favorite")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  tags       SnippetTag[]
+
+  @@map("snippets")
+}
+
+model Tag {
+  id       Int          @id @default(autoincrement())
+  name     String       @unique
+  snippets SnippetTag[]
+
+  @@map("tags")
+}
+
+model SnippetTag {
+  snippetId Int     @map("snippet_id")
+  tagId     Int     @map("tag_id")
+  snippet   Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([snippetId, tagId])
+  @@map("snippet_tags")
+}
